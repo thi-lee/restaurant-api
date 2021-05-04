@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# mongodb 
+mongodb-macos-x86_64-enterprise-4.4.5
