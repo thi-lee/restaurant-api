@@ -3,9 +3,12 @@ const app = express();
 const PORT = 4201;
 
 const client = require('./config/db');
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb+srv://dara-restaurant:Thi786569@cluster0.2yk3t.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
 app.use(express.json());
+
+const favicon = require("express-favicon");
+app.use(favicon(__dirname + '/public/favicon.png'));
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -21,7 +24,7 @@ client.connect(url, (err) => {
         console.log("Unable to connect to mongodb");
         process.exit();
     } else {
-        app.listen(PORT, (err) => {
+        app.listen(process.env.PORT || PORT, (err) => {
             console.log(`Listening to localhost: ${PORT}`)
         })
         const control_controllers = require('./controllers/control_controllers');
