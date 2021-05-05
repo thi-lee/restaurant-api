@@ -21,7 +21,7 @@ client.connect(url, (err) => {
         console.log("Unable to connect to mongodb");
         process.exit();
     } else {
-        app.listen(PORT, (err) => {
+        app.listen(process.env.PORT || PORT, (err) => {
             console.log(`Listening to localhost: ${PORT}`)
         })
         const control_controllers = require('./controllers/control_controllers');
