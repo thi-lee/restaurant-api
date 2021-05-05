@@ -3,7 +3,9 @@ const app = express();
 const PORT = 4201;
 
 const client = require('./config/db');
-const url = 'mongodb+srv://dara-restaurant:Thi786569@cluster0.2yk3t.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+
+const url = process.env.MONGODB_URI;
+// const url = 'mongodb+srv://dara-restaurant:Thi786569@cluster0.2yk3t.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
 app.use(express.json());
 
