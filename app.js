@@ -2,9 +2,9 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 4201;
 
-// const client = require('./config/db');
+const client = require('./config/db');
 
-// const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI;
 // const url = 'mongodb+srv://dara-restaurant:Thi786569@cluster0.2yk3t.mongodb.net/Cluster0?retryWrites=true&w=majority';
 
 app.use(express.json());
@@ -18,19 +18,15 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => { res.send("hello this is app.get()") });
 
-app.listen(PORT, () => {
-    console.log(`Listening to PORT: ${PORT}`)
-})
-
-// client.connect(url, (err) => {
-//     if (err) {
-//         console.log("Unable to connect to mongodb");
-//         process.exit();
-//     } else {
-//         app.listen(process.env.PORT || PORT, (err) => {
-//             console.log(`Listening to localhost: ${PORT}`)
-//         })
-//         const control_controllers = require('./controllers/control_controllers');
-//         app.use('/', control_controllers);
-//     }
-// });
+client.connect(url, (err) => {
+    if (err) {
+        console.log("Unable to connect to mongodb");
+        process.exit();
+    } else {
+        app.listen(PORT, (err) => {
+            console.log(`Listening to localhost: ${PORT}`)
+        })
+        const control_controllers = require('./controllers/control_controllers');
+        app.use('/', control_controllers);
+    }
+});
