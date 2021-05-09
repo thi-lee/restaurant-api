@@ -5,7 +5,6 @@ const PORT = process.env.PORT || 4201;
 const client = require('./config/db');
 
 const url = process.env.MONGODB_URI;
-// const url = 'mongodb+srv://dara-restaurant:Thi786569@cluster0.2yk3t.mongodb.net/Cluster0?retryWrites=true&w=majority';
 
 app.use(express.json());
 
