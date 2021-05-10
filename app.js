@@ -6,7 +6,6 @@ const client = require('./config/db');
 
 const url = process.env.MONGODB_URI;
 
-
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -20,6 +19,7 @@ app.get('/', (req, res) => { res.send("hello this is app.get()") });
 
 client.connect(url, (err) => {
     if (err) {
+        console.log(url)
         console.log("Unable to connect to mongodb");
         process.exit();
     } else {
