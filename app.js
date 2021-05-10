@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 4201;
+require('dotenv').config();
 
 const client = require('./config/db');
+
+const control_controllers = require('./controllers/control_controllers');
 
 const url = process.env.MONGODB_URI;
 
@@ -15,18 +18,18 @@ app.use((req, res, next) => {
       next();
   });
 
-app.get('/', (req, res) => { res.send("hello this is app.get()") });
+app.get('/', (req, res) => { 
+    res.send({kq: 1})
+ });
 
 client.connect(url, (err) => {
     if (err) {
-        console.log(url)
         console.log("Unable to connect to mongodb");
         process.exit();
     } else {
         app.listen(PORT, (err) => {
             console.log(`Listening to localhost: ${PORT}`)
         })
-        const control_controllers = require('./controllers/control_controllers');
         app.use('/', control_controllers);
     }
 });
