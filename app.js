@@ -1,11 +1,9 @@
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 4201;
-// require('dotenv').config();
+require('dotenv').config();
 
 const client = require('./config/db');
-
-const control_controllers = require('./controllers/control_controllers');
 
 const url = process.env.MONGODB_URI;
 
@@ -30,6 +28,7 @@ client.connect(url, (err) => {
         app.listen(PORT, (err) => {
             console.log(`Listening to localhost: ${PORT}`)
         })
+        const control_controllers = require('./controllers/control_controllers');
         app.use('/', control_controllers);
     }
 });
