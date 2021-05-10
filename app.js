@@ -6,6 +6,7 @@ const client = require('./config/db');
 
 const url = process.env.MONGODB_URI;
 
+
 app.use(express.json());
 
 app.use((req, res, next) => {
