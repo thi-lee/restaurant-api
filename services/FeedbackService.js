@@ -6,7 +6,6 @@ const ObjectId = require('mongodb').ObjectID;
 
 exports.getAll = async function(req, res, next) {
     const page = req.params.page;
-    console.log(page);
     const limit = 7;
     const skip = limit * (page - 1)
     

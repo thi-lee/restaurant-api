@@ -1,10 +1,9 @@
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 4201;
+const PORT = 4201;
+
 require('dotenv').config();
-
 const client = require('./config/db');
-
 const url = process.env.MONGODB_URI;
 
 app.use(express.json());

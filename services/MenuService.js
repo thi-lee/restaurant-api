@@ -4,6 +4,13 @@ const collectionName = "Collection";
 const db = client.db(dbName).collection(collectionName);
 const ObjectId = require('mongodb').ObjectID;
 
+exports.getDbCount = async function(req, res, next) {
+    const dbCount = await db.countDocuments();
+    res.send([{
+        "total": dbCount
+    }]);
+}
+
 exports.getById = async function (req, res, next) {
     const id = req.params.id;
     
@@ -13,7 +20,6 @@ exports.getById = async function (req, res, next) {
 
 exports.getAll = async function (req, res, next) {
     const page = req.params.page;
-    console.log(page);
     const limit = 7;
     const skip = limit * (page - 1)
     
@@ -56,8 +62,16 @@ exports.changeDishInfo = async function(req, res, next) {
     await res.send({ kq: 1 });
 }
 
-exports.searchInfo = async function(req, res, next) {
-    const searchText = req.body.search;
-    const result = await db.find({ $text: { $search: searchText}})
-    await res.send(result);
+exports.searchDish = async function(req, res, next) {
+    const wordToMatch = req.query.search;
+    const dishes = await db.find().toArray();
+    const result = findMatches(wordToMatch.toString(), dishes);
+    res.send(result);
+}
+
+const findMatches = function(wordToMatch, dishes) {
+    return dishes.filter(dish => {
+        const regex = new RegExp(wordToMatch, 'gi');
+        return dish.name.match(regex) || dish.description.match(regex) || dish.price.match(regex);
+    })
 }
