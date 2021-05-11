@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 4201;
+const PORT = process.env.PORT || 4201;
 
 require('dotenv').config();
 const client = require('./config/db');
