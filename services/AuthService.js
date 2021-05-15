@@ -55,9 +55,7 @@ async function verifyUsername(username) {
     else if (username.length > 100) { verifyUsernameStatus = '003'; } 
     else if (username.match(specialChars)) { verifyUsernameStatus = '004'; } 
     else if (!username.match(lowercase)) { verifyUsernameStatus = '005'; } 
-    else if (usernameExist == 'invalid') { 
-        console.log(usernameExist)
-        console.log('status 006')
+    else if (usernameExist == 'invalid') {
         verifyUsernameStatus = '006';
     }
     else {
