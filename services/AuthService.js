@@ -18,8 +18,10 @@ exports.addUser = async (req, res, next) => {
 
     let verifyUsernameStatus = await verifyUsername(username);
     let verifyPasswordStatus = verifyPassword(password);
-
-    if (verifyUsernameStatus == '000') {
+    
+    if (verifyUsernameStatus == '006') {
+        res.send({ code: '006', message: 'Username is not available' });
+    } else if (verifyUsernameStatus == '000') {
         console.log('username valid')
         if (verifyPasswordStatus == '000') {
             // await db.insertOne({ username: username, password: password });
@@ -56,7 +58,7 @@ async function verifyUsername(username) {
     else if (usernameExist == 'invalid') { 
         console.log(usernameExist)
         console.log('status 006')
-        verifyUsernameStatus = '006'; 
+        verifyUsernameStatus = '006';
     }
     else {
         console.log('status 000') 
