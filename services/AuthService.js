@@ -10,14 +10,18 @@ exports.verifyUser = async (req, res, next) => {
     const password = req.body.password;
 
     const usernameExists = await db.find({ username: username }).toArray();
-    const dbPassword = usernameExists[0]['password'];
+    if (usernameExists.length == 0) {
+        res.send({ code: '021', message: 'Username does not exists'});
+    } else {
+        const dbPassword = usernameExists[0]['password'];
 
-    bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.compare(password, dbPassword, function(err, res) {
-            console.log(res);
+        bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.compare(password, dbPassword, function(err, res) {
+                console.log(res)
+            }) // handle error
         })
-    })
-    res.send({ result: 1 })
+        res.send({ result: 1 })
+    }
 }
 
 exports.addUser = async (req, res, next) => {
