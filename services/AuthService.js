@@ -3,6 +3,71 @@ const dbName = "users";
 const collectionName = "usercoll";
 const db = client.db(dbName).collection(collectionName);
 
+const bcrypt = require('bcrypt'); 
+
+exports.verifyUser = async (req, res, next) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    const usernameExists = await db.find({ username: username }).toArray();
+    const dbPassword = usernameExists[0]['password'];
+
+    bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.compare(password, dbPassword, function(err, res) {
+            console.log(res);
+        })
+    })
+    res.send({ result: 1 })
+}
+
+exports.addUser = async (req, res, next) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    let validateUsernameStatus = await validateUsername(username);
+    let validatePasswordStatus = validatePassword(password);
+    
+    if (validateUsernameStatus == '006') {
+        res.send({ code: '006', message: 'Username is not available' });
+    } else if (validateUsernameStatus == '000') {
+        console.log('username valid')
+        if (validatePasswordStatus == '000') {
+            bcrypt.genSalt(10, function(err, salt) {
+                bcrypt.hash(password, salt, async function(err, hash) {
+                    await db.insertOne({ username: username, password: hash });
+                })
+            })
+            res.send({ code: '1', message: 'User signed up successfully' });
+        } else { 
+            res.send({ code: validatePasswordStatus, message: 'User failed to sign up due to invalid password' })
+        }
+    } else {
+        res.send({ code: validatePasswordStatus, message: 'User failed to sign up due to invalid username' })
+    }
+}
+
+async function validateUsername(username) {
+    let validateUsernameStatus;
+    let usernameExist = await getUsers(username);
+
+    let specialChars = /[!@#$%^&*()_+=\[\]{};':"\\|,<>\/?]/;
+    let lowercase = /[a-z]/;
+    
+    if (username == '') { validateUsernameStatus = '001'; } 
+    else if (username.length < 6) { validateUsernameStatus = '002'; } 
+    else if (username.length > 100) { validateUsernameStatus = '003'; } 
+    else if (username.match(specialChars)) { validateUsernameStatus = '004'; } 
+    else if (!username.match(lowercase)) { validateUsernameStatus = '005'; } 
+    else if (usernameExist == 'invalid') {
+        validateUsernameStatus = '006';
+    }
+    else {
+        console.log('status 000') 
+        validateUsernameStatus = '000'; 
+    }
+    return validateUsernameStatus;
+}
+
 async function getUsers(username) {
     const result = await db.find({ username: username }).toArray();
     if (result.length > 0) {
@@ -10,76 +75,23 @@ async function getUsers(username) {
     } else {
         return 'valid';
     }
-}
+} 
 
-exports.addUser = async (req, res, next) => {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    let verifyUsernameStatus = await verifyUsername(username);
-    let verifyPasswordStatus = verifyPassword(password);
-    
-    if (verifyUsernameStatus == '006') {
-        res.send({ code: '006', message: 'Username is not available' });
-    } else if (verifyUsernameStatus == '000') {
-        console.log('username valid')
-        if (verifyPasswordStatus == '000') {
-            // await db.insertOne({ username: username, password: password });
-            res.send({ code: '1', message: 'User signed up successfully' });
-        } else { 
-            res.send({ code: verifyPasswordStatus, message: 'User failed to sign up due to invalid password' })
-        }
-    } else {
-        res.send({ code: verifyPasswordStatus, message: 'User failed to sign up due to invalid username' })
-    }
-}
-
-exports.authenticateUser = async (req, res, next) => {
-    let user = {
-        username: req.body.username,
-        password: req.body.password
-    }
-    console.log('this is authenticate user')
-    next(user)
-}
-
-async function verifyUsername(username) {
-    let verifyUsernameStatus;
-    let usernameExist = await getUsers(username);
-
-    let specialChars = /[!@#$%^&*()_+=\[\]{};':"\\|,<>\/?]/;
-    let lowercase = /[a-z]/;
-    
-    if (username == '') { verifyUsernameStatus = '001'; } 
-    else if (username.length < 6) { verifyUsernameStatus = '002'; } 
-    else if (username.length > 100) { verifyUsernameStatus = '003'; } 
-    else if (username.match(specialChars)) { verifyUsernameStatus = '004'; } 
-    else if (!username.match(lowercase)) { verifyUsernameStatus = '005'; } 
-    else if (usernameExist == 'invalid') {
-        verifyUsernameStatus = '006';
-    }
-    else {
-        console.log('status 000') 
-        verifyUsernameStatus = '000'; 
-    }
-    return verifyUsernameStatus;
-}
-
-function verifyPassword(password) {
-    let verifyPasswordStatus;
+function validatePassword(password) {
+    let validatePasswordStatus;
     let specialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
     let lowercase = /[a-z]/;
     let uppercase = /[A-Z]/;
     let number = /[0-9]/
 
-    if (password == '') { verifyPasswordStatus = '011'; } 
-    else if (password.length < 6) { verifyPasswordStatus = '012'; } 
-    else if (password.length > 100) { verifyPasswordStatus = '013'; } 
-    else if (!password.match(specialChars)) { verifyPasswordStatus = '014'; } 
-    else if (!password.match(lowercase)) { verifyPasswordStatus = '015'; } 
-    else if (!password.match(uppercase)) { verifyPasswordStatus = '016'; } 
-    else if (!password.match(number)) { verifyPasswordStatus = '017'; } 
+    if (password == '') { validatePasswordStatus = '011'; } 
+    else if (password.length < 6) { validatePasswordStatus = '012'; } 
+    else if (password.length > 100) { validatePasswordStatus = '013'; } 
+    else if (!password.match(specialChars)) { validatePasswordStatus = '014'; } 
+    else if (!password.match(lowercase)) { validatePasswordStatus = '015'; } 
+    else if (!password.match(uppercase)) { validatePasswordStatus = '016'; } 
+    else if (!password.match(number)) { validatePasswordStatus = '017'; } 
 
-    else { verifyPasswordStatus = '000'; }
-    return verifyPasswordStatus;
+    else { validatePasswordStatus = '000'; }
+    return validatePasswordStatus;
 }

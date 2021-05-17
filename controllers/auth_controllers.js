@@ -4,6 +4,6 @@ const auth_service = require('../services/AuthService');
 
 router.post('/signup', auth_service.addUser);
 
-router.post('/login', auth_service.authenticateUser);
+router.post('/login', auth_service.verifyUser);
 
 module.exports = router;
