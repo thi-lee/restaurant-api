@@ -5,6 +5,34 @@ const db = client.db(dbName).collection(collectionName);
 
 const bcrypt = require('bcrypt'); 
 
+const jwt = require('jsonwebtoken');
+
+const generateAccessToken = (username) => {
+    const payload = { username: username };
+    return jwt.sign(payload, process.env.TOKEN_SECRET, {
+        algorithm: "HS256",
+        expiresIn: '120'
+    });
+}
+
+
+exports.authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+  
+    if (token == null) return res.sendStatus(401)
+  
+    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+      console.log(err)
+  
+      if (err) return res.sendStatus(403)
+  
+      req.user = user
+  
+      next()
+    })
+  }
+
 exports.verifyUser = async (req, res, next) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -14,17 +42,26 @@ exports.verifyUser = async (req, res, next) => {
         res.send({ code: '021', message: 'Username does not exists'});
     } else {
         const dbPassword = usernameExists[0]['password'];
-
-        bcrypt.genSalt(10, function(err, salt) {
-            bcrypt.compare(password, dbPassword, function(err, res) {
-                console.log(res)
-            }) // handle error
-        })
-        res.send({ result: 1 })
+        await bcrypt.compare(password, dbPassword, function(err, res) {
+            console.log(res);
+            if (!res) { res.status(401).send() }
+            else {
+                req.username = username;
+                next();
+            }
+        })// handle error
+        // res.cookie("jwt", token, {secure: true, httpOnly: true});
     }
 }
 
-exports.addUser = async (req, res, next) => {
+exports.grantAccess = (req, res, next) => {
+    const username = req.username;
+    let token = generateAccessToken(username);
+    res.cookie("jwt", token, {secure: true, httpOnly: true});
+    res.send('success')
+}
+
+exports.addUser = async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
@@ -50,7 +87,7 @@ exports.addUser = async (req, res, next) => {
     }
 }
 
-async function validateUsername(username) {
+const validateUsername = async (username) => {
     let validateUsernameStatus;
     let usernameExist = await getUsers(username);
 
