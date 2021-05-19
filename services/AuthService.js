@@ -15,23 +15,9 @@ const generateAccessToken = (username) => {
     });
 }
 
-
-exports.authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
-  
-    if (token == null) return res.sendStatus(401)
-  
-    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
-      console.log(err)
-  
-      if (err) return res.sendStatus(403)
-  
-      req.user = user
-  
-      next()
-    })
-  }
+/*
+Verify users: check if username as password exists in database, if yes, then next()
+*/
 
 exports.verifyUser = async (req, res, next) => {
     const username = req.body.username;
@@ -54,11 +40,20 @@ exports.verifyUser = async (req, res, next) => {
     }
 }
 
+/*
+Grant the username token and send it in the response body
+*/
+
 exports.grantAccess = (req, res, next) => {
     const username = req.username;
     let token = generateAccessToken(username);
-    res.cookie("jwt", token, {secure: true, httpOnly: true});
-    res.send('success')
+    console.log(token)
+    res.cookie("jwt", token.toString(), {secure: true, httpOnly: true});
+    res.send()
+    // res.status(200).json({
+    //     idToken: token, 
+    //     expiresIn: '120s'
+    //   });
 }
 
 exports.addUser = async (req, res) => {
