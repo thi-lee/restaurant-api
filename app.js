@@ -6,13 +6,25 @@ require('dotenv').config();
 const client = require('./config/db');
 const url = process.env.MONGODB_URI;
 
-app.use(express.json());
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization");
+app.use(express.json()); 
+
+// const cors = require('cors');
+// app.use(cors(
+//   
+// ));
+// app.use((req, res, next) => {
+//     console.log('hello')
+//     res.header("Content-Type", "application/json");
+//     next();
+// });
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Credentials", "true")
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST, PUT");
+    res.header("Access-Control-Allow-Headers", "*");
     next();
-});
+  });
 
 app.get('/', (req, res) => { 
     res.send({kq: 1})

@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const MenuService = require('../services/MenuService');
+const AuthService = require('../services/AuthService');
 
-router.get('/getCount', MenuService.getDbCount);
+router.get('/getCount', AuthService.validateToken, MenuService.getDbCount);
 
 router.get('/getAll/:page', MenuService.getAll);
 

@@ -10,9 +10,21 @@ const jwt = require('jsonwebtoken');
 const generateAccessToken = (username) => {
     const payload = { username: username };
     return jwt.sign(payload, process.env.TOKEN_SECRET, {
-        algorithm: "HS256",
-        expiresIn: '120'
+        algorithm: "HS256"
     });
+}
+
+exports.validateToken = (req, res, next) => {
+    const token = req.headers.token;
+    const jwtToken = token.split('=')[1];
+    const valid = jwt.verify(jwtToken, process.env.TOKEN_SECRET, {
+        algorithm: "HS256"
+    });
+    if (valid) {
+        next()
+    } else {
+        res.status(401).send();
+    }
 }
 
 /*
@@ -28,9 +40,11 @@ exports.verifyUser = async (req, res, next) => {
         res.send({ code: '021', message: 'Username does not exists'});
     } else {
         const dbPassword = usernameExists[0]['password'];
-        await bcrypt.compare(password, dbPassword, function(err, res) {
-            console.log(res);
-            if (!res) { res.status(401).send() }
+        bcrypt.compare(password, dbPassword, function(err, verifyResult) {
+            console.log(verifyResult);
+            if (!verifyResult) {
+                res.send({ code: '022', message: 'Password is incorrect'});
+            }
             else {
                 req.username = username;
                 next();
@@ -47,13 +61,11 @@ Grant the username token and send it in the response body
 exports.grantAccess = (req, res, next) => {
     const username = req.username;
     let token = generateAccessToken(username);
-    console.log(token)
-    res.cookie("jwt", token.toString(), {secure: true, httpOnly: true});
-    res.send()
-    // res.status(200).json({
-    //     idToken: token, 
-    //     expiresIn: '120s'
-    //   });
+    console.log(token);
+    res.status(200).json({
+        code: '020',
+        idToken: token
+      });
 }
 
 exports.addUser = async (req, res) => {
@@ -70,6 +82,9 @@ exports.addUser = async (req, res) => {
         if (validatePasswordStatus == '000') {
             bcrypt.genSalt(10, function(err, salt) {
                 bcrypt.hash(password, salt, async function(err, hash) {
+                    /*
+                    Add username with hashed password
+                    */
                     await db.insertOne({ username: username, password: hash });
                 })
             })

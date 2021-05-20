@@ -6,7 +6,7 @@ const ObjectId = require('mongodb').ObjectID;
 
 exports.getDbCount = async function(req, res, next) {
     const dbCount = await db.countDocuments();
-    res.send([{
+    res.status(200).send([{
         "total": dbCount
     }]);
 }
@@ -41,21 +41,21 @@ exports.getAll = async function (req, res, next) {
     res.send(resp);
 }
 
-exports.insertDish = async function(req, res, next) {
+exports.insertDish = async function(req, res) {
     const dish = req.body;
 
     await db.insertOne(dish);
     res.send({ kq: 1 });
 }
 
-exports.removeDish = async function(req, res, next) {
+exports.removeDish = async function(req, res) {
     const dishId = req.body._id;
 
     await db.deleteOne({"_id": ObjectId(dishId)});
     res.send({ kq: 1 });
 }
 
-exports.changeDishInfo = async function(req, res, next) {
+exports.changeDishInfo = async function(req, res) {
     const dishId = req.body._id;
     const update = req.body.update;
     await db.updateOne({"_id": ObjectId(dishId)}, {$set: update});
