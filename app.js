@@ -8,19 +8,9 @@ const url = process.env.MONGODB_URI;
 
 app.use(express.json()); 
 
-// const cors = require('cors');
-// app.use(cors(
-//   
-// ));
-// app.use((req, res, next) => {
-//     console.log('hello')
-//     res.header("Content-Type", "application/json");
-//     next();
-// });
-
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Credentials", "true")
-    res.header("Access-Control-Allow-Origin", "https://dara-restaurant.netlify.app/");
+    res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST, PUT");
     res.header("Access-Control-Allow-Headers", "*");
     next();

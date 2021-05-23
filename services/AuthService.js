@@ -14,22 +14,25 @@ const generateAccessToken = (username) => {
     });
 }
 
-// exports.validateToken = (req, res, next) => {
-//     const token = req.headers.token;
-//     const jwtToken = token.split('=')[1];
-//     if (jwtToken != undefined) {
-//         const valid = jwt.verify(jwtToken, process.env.TOKEN_SECRET, {
-//             algorithm: "HS256"
-//         });
-//         if (valid) {
-//             next()
-//         } else {
-//             res.status(401).send();
-//         }
-//     } else {
-//         console.log('you need to sign in')
-//     }
-// }
+exports.validateToken = (req, res, next) => {
+    // if there's no token
+    if (!req.headers.authorization) {
+        // header does not include authorization 
+        return res.status(401).send('Unauthorized request');
+    } 
+    let token = req.headers.authorization.split(' ')[1];
+    if (token == "null") {
+        // token does not exist
+        return res.status(401).send('Unauthorized request');
+    }
+    let payload = jwt.verify(token, process.env.TOKEN_SECRET);
+    if (!payload) {
+        // token is invalid
+        return res.status(401).send('Unauthorized request');
+    }
+    req.userId = payload.username;
+    next()
+}
 
 /*
 Verify users: check if username as password exists in database, if yes, then next()
@@ -54,21 +57,12 @@ exports.verifyUser = async (req, res, next) => {
                 next();
             }
         })// handle error
-        // res.cookie("jwt", token, {secure: true, httpOnly: true});
     }
 }
 
 /*
 Grant the username token and send it in the response body
 */
-// const valid = jwt.verify(jwtToken, process.env.TOKEN_SECRET, {
-//         algorithm: "HS256"
-//     });
-//     if (valid) {
-//         next()
-//     } else {
-//         res.status(401).send();
-//     }
 
 exports.grantAccess = (req, res, next) => {
     const username = req.username;

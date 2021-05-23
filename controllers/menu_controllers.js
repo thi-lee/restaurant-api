@@ -6,7 +6,7 @@ const AuthService = require('../services/AuthService');
 
 router.get('/getCount', MenuService.getDbCount);
 
-router.get('/getAll/:page', MenuService.getAll);
+router.get('/getAll/:page', AuthService.validateToken, MenuService.getAll);
 
 router.get('/getById/(:id)', MenuService.getById);
 
